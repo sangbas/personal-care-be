@@ -27,7 +27,7 @@ type Order struct {
 func main() {
 	r := gin.Default()
 	r.Use(cors.Default())
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/training_ground")
+	db, err := sql.Open("mysql", "b980eb19293673:36d1a594@tcp(us-cdbr-iron-east-02.cleardb.net)/heroku_9532b652abd0830")
 	// if there is an error opening the connection, handle it
 	if err != nil {
 		panic(err.Error())
