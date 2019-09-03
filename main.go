@@ -127,7 +127,7 @@ func main() {
 	r.GET("/order/massage", func(c *gin.Context) {
 		var orders []Order
 		// Execute the query
-		rows,err := db.Query("SELECT o.order_id, u.name, o.beverage_id FROM `order` o JOIN `user` u ON u.user_id=o.user_id where beverage_id is null order by order_id asc")
+		rows,err := db.Query("SELECT o.order_id, u.name, o.beverage_id FROM `order` o JOIN `user` u ON u.user_id=o.user_id where beverage_id = 'undefined' order by order_id asc")
 		if err != nil {
 			panic(err.Error()) // proper error handling instead of panic in your app
 		}
