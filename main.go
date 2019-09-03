@@ -4,6 +4,17 @@ import "github.com/gin-gonic/gin"
 import "github.com/gin-contrib/cors"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
+// import (
+//     "bytes"
+//     "log"
+//     "net/http"
+//     "os"
+
+//     "github.com/aws/aws-sdk-go/aws"
+//     "github.com/aws/aws-sdk-go/aws/session"
+//     "github.com/aws/aws-sdk-go/service/s3"
+// )
+
 
 
 // Binding from JSON
@@ -20,8 +31,9 @@ type CheckIn struct {
 }
 
 type Order struct {
+	OrderId string `form:"orderId" json:"orderId"`
 	UserId 	string `form:"userId" json:"userId"  binding:"required"`
-	BeverageId 	string `form:"beverageId" json:"beverageId" binding:"required"`
+	BeverageId string `form:"beverageId" json:"beverageId" binding:"required"`
 }
 
 func main() {
@@ -96,11 +108,43 @@ func main() {
 		})
 	})
 
+	r.GET("/order/beverage", func(c *gin.Context) {
+		var orders []Order
+		// Execute the query
+		rows,err := db.Query("SELECT o.order_id, u.name, o.beverage_id FROM `order` o JOIN `user` u ON u.user_id=o.user_id where beverage_id is not null order by order_id desc")
+		if err != nil {
+			panic(err.Error()) // proper error handling instead of panic in your app
+		}
+		for rows.Next() {
+			var order Order
+			rows.Scan(&order.OrderId, &order.UserId, &order.BeverageId)
+			orders = append(orders, order)
+		}
+		defer rows.Close()
+		c.JSON(200, orders)
+	})
+
+	r.GET("/order/massage", func(c *gin.Context) {
+		var orders []Order
+		// Execute the query
+		rows,err := db.Query("SELECT o.order_id, u.name, o.beverage_id FROM `order` o JOIN `user` u ON u.user_id=o.user_id where beverage_id is null order by order_id desc")
+		if err != nil {
+			panic(err.Error()) // proper error handling instead of panic in your app
+		}
+		for rows.Next() {
+			var order Order
+			rows.Scan(&order.OrderId, &order.UserId, &order.BeverageId)
+			orders = append(orders, order)
+		}
+		defer rows.Close()
+		c.JSON(200, orders)
+	})
+
 	r.POST("/order", func(c *gin.Context) {
 		var order Order
 		c.ShouldBind(&order)
 		// perform a db.Query insert
-		insert, err := db.Query("INSERT INTO `order` (user_id, beverage_id, served) VALUES ( "+order.UserId+", "+order.BeverageId+", 0 )")
+		insert, err := db.Query("INSERT INTO `order` (user_id, beverage_id, served) VALUES ( "+order.UserId+", '"+order.BeverageId+"', 0 )")
 
 		// if there is an error inserting, handle it
 		if err != nil {
