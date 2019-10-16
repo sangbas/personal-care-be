@@ -13,7 +13,7 @@ func main() {
 
 	user := new(controllers.UserController)
 	r.GET("/user/:userId", user.One)
-	r.POST("/register", user.Create)
+	r.POST("/user", user.Create)
 
 	order := new(controllers.OrderController)
 	r.GET("/order/:category", order.GetByCategory)
